@@ -4,19 +4,41 @@ local Nyuu = {
 }
 
 function Nyuu.up()
+  if Nyuu.currentMenu == nil then
+    return
+  end
+
   Nyuu.currentMenu:changeSelection(-1)
 end
 
 function Nyuu.down()
+  if Nyuu.currentMenu == nil then
+    return
+  end
+
   Nyuu.currentMenu:changeSelection(1)
 end
 
 function Nyuu.left()
+  if Nyuu.currentMenu == nil then
+    return
+  end
+
   Nyuu.currentMenu:changeSelection(-1)
 end
 
 function Nyuu.right()
+  if Nyuu.currentMenu == nil then
+    return
+  end
+
   Nyuu.currentMenu:changeSelection(1)
+end
+
+function Nyuu.select()
+  if Nyuu.currentMenu == nil then return end
+
+  Nyuu.currentMenu:select()
 end
 
 function Nyuu.draw()
@@ -37,24 +59,21 @@ function Nyuu.newMenu(...)
     :initialize(...)
 end
 
-function Menu:initialize()
-  table.insert(Nyuu.menus, self)
-  Nyuu.currentMenu = self
+function Menu:initialize(options, callback)
+  self.options = options
+  self.callback = callback
 
   self.selection = 1
-  self.options = {
-    {text = 'Attack', id = 'attack'},
-    {text = 'Magic', id = 'magic'},
-    {text = 'Item', id = 'item'},
-    {text = 'Cute Pose', id = 'cute_pose'},
-  }
 
   self.font = font["mono16"] -- todo: remove xxx
-  self._ui_x = 10
-  self._ui_y = 199
-  self._ui_menu_w = 200
-  self._ui_menu_h = 50
-  self._ui_menu_pad = 3
+  self.uiX = 10
+  self.uiY = 199
+  self.uiMenuW = 200
+  self.uiMenuH = 50
+  self.uiMenuPad = 3
+
+  table.insert(Nyuu.menus, self)
+  Nyuu.currentMenu = self
 end
 
 function Menu:changeSelection(i)
@@ -71,15 +90,28 @@ function Menu:setSelection(selection)
   end
 end
 
+function Menu:select()
+  -- Current menu should be closed first, since we're removing the latest on the stack.
+  self:close()
+
+  local selection = self.options[self.selection]
+  self.callback(selection)
+end
+
+function Menu:close()
+  Nyuu.currentMenu = nil
+  table.remove(Nyuu.menus, #Nyuu.menus)
+end
+
 function Menu:draw()
-  local x = self._ui_x
-  local y = self._ui_y
-  local w = self._ui_menu_w
-  local h = self._ui_menu_h
+  local x = self.uiX
+  local y = self.uiY
+  local w = self.uiMenuW
+  local h = self.uiMenuH
   -- Usable area
-  local pad = self._ui_menu_pad
-  local u_w = self._ui_menu_w - pad * 2
-  local u_h = self._ui_menu_h - pad * 2
+  local pad = self.uiMenuPad
+  local u_w = self.uiMenuW - pad * 2
+  local u_h = self.uiMenuH - pad * 2
 
   love.graphics.setColor(255, 255, 255)
   love.graphics.rectangle('line', x + 0.5, y + 0.5, w -1 , h - 1)
