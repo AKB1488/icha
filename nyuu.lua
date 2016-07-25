@@ -95,7 +95,7 @@ function Menu:select()
   self:close()
 
   local selection = self.options[self.selection]
-  self.callback(selection)
+  self.callback(unpack(selection))
 end
 
 function Menu:close()
@@ -120,7 +120,7 @@ function Menu:draw()
     local offset_x = 0 -- ((i + 1) % 2) * math.floor(u_w / 2)
     local offset_y = math.floor(i - 1) * math.floor(u_h / 4)
 
-    self:drawOption(opt.text, self.selection == i, x + pad + offset_x, y + pad + offset_y)
+    self:drawOption(opt[1], self.selection == i, x + pad + offset_x, y + pad + offset_y)
   end
 end
 
@@ -128,14 +128,15 @@ function Menu:drawOption(text, selected, x, y)
   love.graphics.setColor(255, 255, 255)
 
   if selected then
-    local rect_width = self.font:getWidth(text) + 2
-    love.graphics.rectangle('fill', x, y, rect_width, 10)
+    local rectWidth = self.font:getWidth(text) + 2
+    love.graphics.rectangle('fill', x, y, rectWidth, 10)
 
     love.graphics.setColor(0, 0, 0)
   end
 
   love.graphics.print(text, x + 1, y + 1)
 end
+
 
 
 return Nyuu
